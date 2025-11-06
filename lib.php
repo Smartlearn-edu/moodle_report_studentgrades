@@ -1,32 +1,29 @@
 <?php
-/**
- * Library functions for report_studentgrades plugin
- *
- * @package    report_studentgrades
- * @copyright  2025 onwards, Moodle Community
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @author     Moodle Community
- */
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Adds link to Student Grades report in user profile navigation
+ * Extend user navigation for the Student Grades report.
  *
- * @param navigation_node $navigation The navigation node to extend
- * @param stdClass $user The user object
- * @param context_user $usercontext The user context
- * @param stdClass $course The course object
- * @param context_course $coursecontext The course context
+ * @param global_navigation $navigation
+ * @param stdClass $user
+ * @param context $context
+ * @param stdClass|null $course
+ * @param context|null $coursecontext
+ * @return void
  */
-function report_studentgrades_extend_navigation_user($navigation, $user, $usercontext, $course, $coursecontext) {
-    global $USER;
-    
-    // Check if user can view this report
-    if (has_capability('report/studentgrades:view', $usercontext) && 
-        ($USER->id == $user->id || has_capability('report/studentgrades:viewall', context_system::instance()))) {
-        
-        $url = new moodle_url('/report/studentgrades/index.php', array('userid' => $user->id));
+function report_studentgrades_extend_navigation_user($navigation, $user, $context, $course = null, $coursecontext = null) {
+    global $CFG, $USER;
+
+    // Make sure we have a valid user context.
+    if (!empty($user) && !empty($user->id)) {
+        $usercontext = context_user::instance($user->id);
+    } else {
+        $usercontext = context_user::instance($USER->id);
+    }
+
+    // Only show the report link if the user has the required capability.
+    if (has_capability('report/studentgrades:view', $usercontext)) {
+        $url = new moodle_url('/report/studentgrades/index.php', ['id' => $user->id ?? $USER->id]);
         $navigation->add(
             get_string('pluginname', 'report_studentgrades'),
             $url,
@@ -37,3 +34,4 @@ function report_studentgrades_extend_navigation_user($navigation, $user, $userco
         );
     }
 }
+
