@@ -1,0 +1,57 @@
+/**
+ * Styles for Student Course Grades Report
+ *
+ * @package    report_studentgrades
+ * @copyright  2025 onwards, Moodle Community
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author     Moodle Community
+ */
+
+/* Main interface styles */
+.report-studentgrades .form-group {
+    margin-bottom: 15px;
+}
+
+.report-studentgrades label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.report-studentgrades .form-control {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.report-studentgrades .btn {
+    padding: 10px 20px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.report-studentgrades .btn-primary {
+    background-color: #0073aa;
+    color: white;
+}
+
+.report-studentgrades .btn-primary:hover {
+    background-color: #005a87;
+}
+
+/* Export preview styles */
+.report-studentgrades .export-preview {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+}
+
+.report-studentgrades .export-preview h3 {
+    margin-top: 0;
+    color: #333;
+}
