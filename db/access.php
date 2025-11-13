@@ -1,11 +1,9 @@
 <?php
 /**
  * Capability definitions for report_studentgrades plugin
- *
- * @package    report_studentgrades
- * @copyright  2025 onwards, Moodle Community
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @author     Moodle Community
+ * @package     report_studentgrades
+ * @copyright   2025 Mohammad Nabil <mohammad@smartlearn.education>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();

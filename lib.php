@@ -2,6 +2,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * @package     report_studentgrades
+ * @copyright   2025 Mohammad Nabil <mohammad@smartlearn.education>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * Extend user navigation for the Student Grades report.
  *
  * @param global_navigation $navigation
@@ -34,4 +37,3 @@ function report_studentgrades_extend_navigation_user($navigation, $user, $contex
         );
     }
 }
-
