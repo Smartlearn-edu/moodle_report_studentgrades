@@ -16,10 +16,16 @@
 
 /**
  * Plugin version and other meta-data are defined here.
+<<<<<<< HEAD
+=======
+ *
+>>>>>>> fdfe4f48718225705dfe79f0cef73cc00920f038
  * @package     report_studentgrades
  * @copyright   2025 Mohammad Nabil <mohammad@smartlearn.education>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+
 
 defined('MOODLE_INTERNAL') || die();
 
