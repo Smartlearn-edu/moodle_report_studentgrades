@@ -33,6 +33,7 @@ $capabilities = array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
+            'user' => CAP_ALLOW,
         ),
     ),
     'report/studentgrades:viewall' => array(
