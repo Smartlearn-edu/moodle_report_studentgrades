@@ -100,6 +100,22 @@ $string['percentagecolordesc'] = 'Text color for percentage values';
 $string['percentagebgcolor'] = 'Percentage Background Color';
 $string['percentagebgcolordesc'] = 'Background color for percentage cells';
 
+// AI Settings
+$string['aisettings'] = 'AI Analysis Settings';
+$string['aisettingsdesc'] = 'Configure the integration with external AI services via n8n.';
+$string['enableemailanalysis'] = 'Enable Analysis via Email';
+$string['enableemailanalysisdesc'] = 'Allow users to request an analysis report sent to their email.';
+$string['enableinstantanalysis'] = 'Enable Instant Analysis';
+$string['enableinstantanalysisdesc'] = 'Allow users to view an analysis report instantly in a modal window.';
+$string['webhookurl'] = 'n8n Webhook URL';
+$string['webhookurldesc'] = 'The URL of the n8n webhook that will process the student grade data.';
+$string['token'] = 'n8n Webhook Token';
+$string['tokendesc'] = 'Secure token for authentication with the n8n webhook (sent in headers).';
+$string['aiprompt'] = 'AI Analysis Prompt';
+$string['aipromptdesc'] = 'The prompt sent to the AI along with the student data. Customize this to change the tone or focus of the analysis.';
+$string['aicooldown'] = 'Analysis Cooldown (Minutes)';
+$string['aicooldowndesc'] = 'Minimum time in minutes between analysis requests for critical data saving. Set to 0 to disable.';
+
 // Reset Information
 $string['resetcolorsheading'] = 'Reset Colors';
 $string['resetcolorsdesc'] = 'To reset all colors to their default values, clear each color field and save the settings. The plugin will automatically use the default color scheme.';

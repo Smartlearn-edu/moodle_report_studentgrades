@@ -787,14 +787,12 @@ class exporter
             }
         }
 
-        // Get config from autogradehelper
-        // COMPONENT: local_autogradehelper
-        // SETTINGS: webhookurl, token
-        $n8n_url = get_config('local_autogradehelper', 'webhookurl');
-        $n8n_token = get_config('local_autogradehelper', 'token');
+        // Get config from report_studentgrades
+        $n8n_url = get_config('report_studentgrades', 'webhookurl');
+        $n8n_token = get_config('report_studentgrades', 'token');
 
-        if (!$n8n_url || !$n8n_token) {
-            return array('success' => false, 'message' => 'AI Configuration (URL or Token) not found in Autograde Helper settings.');
+        if (!$n8n_url) {
+            return array('success' => false, 'message' => 'AI Configuration (Webhook URL) not found in Student Grades Report settings.');
         }
 
         $user = $DB->get_record('user', array('id' => $this->userid), '*', MUST_EXIST);

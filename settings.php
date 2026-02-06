@@ -185,6 +185,35 @@ if ($ADMIN->fulltree) {
         get_string('aisettingsdesc', 'report_studentgrades')
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'report_studentgrades/enableemailanalysis',
+        get_string('enableemailanalysis', 'report_studentgrades'),
+        get_string('enableemailanalysisdesc', 'report_studentgrades'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'report_studentgrades/enableinstantanalysis',
+        get_string('enableinstantanalysis', 'report_studentgrades'),
+        get_string('enableinstantanalysisdesc', 'report_studentgrades'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'report_studentgrades/webhookurl',
+        get_string('webhookurl', 'report_studentgrades'),
+        get_string('webhookurldesc', 'report_studentgrades'),
+        '',
+        PARAM_URL
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'report_studentgrades/token',
+        get_string('token', 'report_studentgrades'),
+        get_string('tokendesc', 'report_studentgrades'),
+        ''
+    ));
+
     $defaultprompt = "You are an educational AI assistant. Analyze the following student performance data. " .
         "The data includes course descriptions, activities, max grades, student grades, and activity descriptions. " .
         "Provide a constructive analysis of the student's strengths and areas for improvement based on this data.";

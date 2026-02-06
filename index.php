@@ -109,106 +109,110 @@ echo html_writer::tag(
 echo html_writer::end_tag('form');
 
 // Add Analysis Button
-echo html_writer::start_tag('form', array('method' => 'post', 'action' => '', 'style' => 'display: inline-block;'));
-echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'userid', 'value' => $userid));
-echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'analyze'));
-// Use a different color/icon for AI analysis
-echo html_writer::tag(
-    'button',
-    'Analyze & Email Me',
-    array('type' => 'submit', 'class' => 'btn btn-info btn-lg')
-);
-echo html_writer::end_tag('form');
+if (get_config('report_studentgrades', 'enableemailanalysis')) {
+    echo html_writer::start_tag('form', array('method' => 'post', 'action' => '', 'style' => 'display: inline-block;'));
+    echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'userid', 'value' => $userid));
+    echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'analyze'));
+    // Use a different color/icon for AI analysis
+    echo html_writer::tag(
+        'button',
+        'Analyze & Email Me',
+        array('type' => 'submit', 'class' => 'btn btn-info btn-lg')
+    );
+    echo html_writer::end_tag('form');
+}
 
 // --- NEW MOODLE AI BUTTON & MODAL LOGIC ---
 
-// Button
-echo html_writer::tag(
-    'button',
-    'View Analysis Now',
-    array('id' => 'btn-moodle-ai-test', 'class' => 'btn btn-success btn-lg', 'style' => 'margin-left: 10px;')
-);
+if (get_config('report_studentgrades', 'enableinstantanalysis')) {
+    // Button
+    echo html_writer::tag(
+        'button',
+        'View Analysis Now',
+        array('id' => 'btn-moodle-ai-test', 'class' => 'btn btn-success btn-lg', 'style' => 'margin-left: 10px;')
+    );
 
-// JavaScript for Modal
-$js = "
-require(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/ajax', 'core/notification'], 
-function($, ModalFactory, ModalEvents, Str, Ajax, Notification) {
-    
-    var triggerBtn = $('#btn-moodle-ai-test');
-    
-    ModalFactory.create({
-        type: ModalFactory.types.DEFAULT,
-        title: 'AI Analysis Result',
-        body: '<div class=\"text-center\"><i class=\"fa fa-spinner fa-spin fa-3x\"></i><p>Talking to Moodle AI...</p></div>',
-    }, triggerBtn).done(function(modal) {
+    // JavaScript for Modal
+    $js = "
+    require(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/ajax', 'core/notification'], 
+    function($, ModalFactory, ModalEvents, Str, Ajax, Notification) {
         
-        modal.getRoot().on(ModalEvents.shown, function() {
-            // When modal shows, trigger the AJAX call
-            // Reset body to loading state in case it was opened before
-            modal.setBody('<div class=\"text-center\" style=\"padding:20px;\"><i class=\"fa fa-spinner fa-pulse fa-3x fa-fw\"></i><p>Generating Analysis...</p></div>');
+        var triggerBtn = $('#btn-moodle-ai-test');
+        
+        ModalFactory.create({
+            type: ModalFactory.types.DEFAULT,
+            title: 'AI Analysis Result',
+            body: '<div class=\"text-center\"><i class=\"fa fa-spinner fa-spin fa-3x\"></i><p>Talking to Moodle AI...</p></div>',
+        }, triggerBtn).done(function(modal) {
             
-            $.ajax({
-                url: 'ajax_ai.php',
-                method: 'GET',
-                dataType: 'json',
-                data: {
-                    action: 'test_ai',
-                    userid: " . $userid . "
-                },
-                success: function(response) {
-                    if (response && response.success) {
-                        var contentHtml = '<div id=\"ai-analysis-content\">' + (response.message || 'Success') + '</div>';
-                        var controlsHtml = '<div style=\"margin-top:20px; text-align:right; border-top:1px solid #eee; padding-top:10px;\">' +
-                            '<button class=\"btn btn-secondary\" id=\"btn-print-analysis\"><i class=\"fa fa-print\"></i> Print</button> ' +
-                            '<button class=\"btn btn-primary\" id=\"btn-download-pdf\"><i class=\"fa fa-file-pdf-o\"></i> Download PDF</button>' +
-                            '</div>';
-                        
-                        modal.setBody(contentHtml + controlsHtml);
+            modal.getRoot().on(ModalEvents.shown, function() {
+                // When modal shows, trigger the AJAX call
+                // Reset body to loading state in case it was opened before
+                modal.setBody('<div class=\"text-center\" style=\"padding:20px;\"><i class=\"fa fa-spinner fa-pulse fa-3x fa-fw\"></i><p>Generating Analysis...</p></div>');
+                
+                $.ajax({
+                    url: 'ajax_ai.php',
+                    method: 'GET',
+                    dataType: 'json',
+                    data: {
+                        action: 'test_ai',
+                        userid: " . $userid . "
+                    },
+                    success: function(response) {
+                        if (response && response.success) {
+                            var contentHtml = '<div id=\"ai-analysis-content\">' + (response.message || 'Success') + '</div>';
+                            var controlsHtml = '<div style=\"margin-top:20px; text-align:right; border-top:1px solid #eee; padding-top:10px;\">' +
+                                '<button class=\"btn btn-secondary\" id=\"btn-print-analysis\"><i class=\"fa fa-print\"></i> Print</button> ' +
+                                '<button class=\"btn btn-primary\" id=\"btn-download-pdf\"><i class=\"fa fa-file-pdf-o\"></i> Download PDF</button>' +
+                                '</div>';
+                            
+                            modal.setBody(contentHtml + controlsHtml);
 
-                        // Bind events
-                        setTimeout(function() {
-                            $('#btn-print-analysis').on('click', function() {
-                                var printWindow = window.open('', '', 'height=600,width=800');
-                                printWindow.document.write('<html><head><title>AI Analysis</title>');
-                                printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;}</style>');
-                                printWindow.document.write('</head><body>');
-                                printWindow.document.write($('#ai-analysis-content').html());
-                                printWindow.document.write('</body></html>');
-                                printWindow.document.close();
-                                printWindow.print();
-                            });
+                            // Bind events
+                            setTimeout(function() {
+                                $('#btn-print-analysis').on('click', function() {
+                                    var printWindow = window.open('', '', 'height=600,width=800');
+                                    printWindow.document.write('<html><head><title>AI Analysis</title>');
+                                    printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;}</style>');
+                                    printWindow.document.write('</head><body>');
+                                    printWindow.document.write($('#ai-analysis-content').html());
+                                    printWindow.document.write('</body></html>');
+                                    printWindow.document.close();
+                                    printWindow.print();
+                                });
 
-                            $('#btn-download-pdf').on('click', function() {
-                                var form = $('<form action=\"download_pdf.php\" method=\"post\" target=\"_blank\">' +
-                                    '<input type=\"hidden\" name=\"action\" value=\"downloadpdf\">' +
-                                    '<input type=\"hidden\" name=\"userid\" value=\"' + " . $userid . " + '\">' +
-                                    '<textarea name=\"html_content\" style=\"display:none;\">' + $('#ai-analysis-content').html() + '</textarea>' +
-                                    '</form>');
-                                $('body').append(form);
-                                form.submit();
-                                form.remove();
-                            });
-                        }, 500);
-                    } else {
-                        var errMsg = (response && response.message) ? response.message : 'Unknown error occurred';
-                        modal.setBody('<div class=\"alert alert-danger\">' + errMsg + '</div>');
+                                $('#btn-download-pdf').on('click', function() {
+                                    var form = $('<form action=\"download_pdf.php\" method=\"post\" target=\"_blank\">' +
+                                        '<input type=\"hidden\" name=\"action\" value=\"downloadpdf\">' +
+                                        '<input type=\"hidden\" name=\"userid\" value=\"' + " . $userid . " + '\">' +
+                                        '<textarea name=\"html_content\" style=\"display:none;\">' + $('#ai-analysis-content').html() + '</textarea>' +
+                                        '</form>');
+                                    $('body').append(form);
+                                    form.submit();
+                                    form.remove();
+                                });
+                            }, 500);
+                        } else {
+                            var errMsg = (response && response.message) ? response.message : 'Unknown error occurred';
+                            modal.setBody('<div class=\"alert alert-danger\">' + errMsg + '</div>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                         var errorDetails = status + ': ' + error;
+                         try {
+                            var resp = JSON.parse(xhr.responseText);
+                            if(resp && resp.message) errorDetails = resp.message;
+                         } catch(e) {}
+                         modal.setBody('<div class=\"alert alert-danger\">Communication Error: ' + errorDetails + '</div>');
                     }
-                },
-                error: function(xhr, status, error) {
-                     var errorDetails = status + ': ' + error;
-                     try {
-                        var resp = JSON.parse(xhr.responseText);
-                        if(resp && resp.message) errorDetails = resp.message;
-                     } catch(e) {}
-                     modal.setBody('<div class=\"alert alert-danger\">Communication Error: ' + errorDetails + '</div>');
-                }
+                });
             });
         });
     });
-});
-";
+    ";
 
-$PAGE->requires->js_amd_inline($js);
+    $PAGE->requires->js_amd_inline($js);
+}
 
 
 echo $OUTPUT->footer();
