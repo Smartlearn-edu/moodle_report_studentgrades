@@ -14,34 +14,16 @@ require_login();
 $userid = (int)$userid;
 $current_userid = (int)$USER->id;
 
-// Determine context and capability based on whether the user is viewing their own data
-if ($userid === $current_userid) {
-    // User is accessing their own data.
-    // Matching logic from index.php: Implicitly allow users to view their own data
-    // without enforcing the 'report/studentgrades:view' capability strictly here,
-    // as it can cause issues if roles aren't perfectly propagated.
-    $context = context_user::instance($userid);
-} else {
-    // User is accessing someone else's data
-    // If they don't have viewall capability, throw a descriptive error (or rely on require_capability)
-    // We rely on require_capability, but let's double check if we can give a hint if they are not admin
-    $context = context_system::instance();
+require_once(__DIR__ . '/lib.php');
 
-    // Check permission strictly
-    // Note: If this fails, Moodle throws an exception which results in the generic error message the user saw.
-    // If we want to debug why we are here, we can check logic.
-    if (!has_capability('report/studentgrades:viewall', $context)) {
-        // User is trying to access another user's data without permission OR logic decided they are different users.
-        // Return a custom error to help debugging
-        $response = [
-            'success' => false,
-            'message' => "Permission Denied. You are logged in as User ID: $current_userid but requested data for User ID: $userid. 'View all' capability required."
-        ];
-        echo json_encode($response);
-        exit;
-    }
-
-    require_capability('report/studentgrades:viewall', $context);
+// Check permission using the common helper function
+if (!report_studentgrades_can_access_user($userid, $current_userid)) {
+    $response = [
+        'success' => false,
+        'message' => "Permission Denied. You are logged in as User ID: $current_userid but requested data for User ID: $userid. Appropriate capability or linked parent account required."
+    ];
+    echo json_encode($response);
+    exit;
 }
 
 $response = [

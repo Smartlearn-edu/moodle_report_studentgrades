@@ -31,10 +31,12 @@ $action = optional_param('action', '', PARAM_ALPHA);
 require_login();
 
 // Verify access
-$usercontext = context_user::instance($userid);
-if ($userid != $USER->id && !has_capability('report/studentgrades:viewall', context_system::instance())) {
+require_once(__DIR__ . '/lib.php');
+if (!report_studentgrades_can_access_user($userid)) {
     throw new moodle_exception('nopermissions', 'error');
 }
+
+$usercontext = context_user::instance($userid);
 
 // Setup page FIRST (moved up before export)
 $PAGE->set_context($usercontext);

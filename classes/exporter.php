@@ -442,26 +442,9 @@ class exporter
      */
     private function can_view_user_grades()
     {
-        global $USER;
-
-        try {
-            // Users can view their own grades
-            if ($this->userid == $USER->id) {
-                return true;
-            }
-
-            // Admins and users with viewall capability can view any user
-            if (is_siteadmin() || has_capability('report/studentgrades:viewall', \context_system::instance())) {
-                return true;
-            }
-        } catch (\Exception $e) {
-            error_log('report_studentgrades: Error checking permissions: ' . $e->getMessage());
-            if ($this->userid == $USER->id) {
-                return true;
-            }
-        }
-
-        return false;
+        global $CFG;
+        require_once($CFG->dirroot . '/report/studentgrades/lib.php');
+        return report_studentgrades_can_access_user($this->userid);
     }
 
     /**

@@ -12,7 +12,8 @@ require_login();
 // In a real scenario, we should re-verify the content belongs to the user or re-generate it.
 // Assuming the content is passed from the client for now as a "Save as PDF" feature of the modal view.
 $context = context_user::instance($userid);
-if ($userid != $USER->id && !has_capability('report/studentgrades:viewall', context_system::instance())) {
+require_once(__DIR__ . '/lib.php');
+if (!report_studentgrades_can_access_user($userid)) {
     print_error('nopermissions');
 }
 
