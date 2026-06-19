@@ -1,8 +1,8 @@
 Student Course Grades Report Plugin
 =====================================
 
-Version: 1.0.0
-Release Date: August 2025
+Version: 1.1.2
+Release Date: June 2026
 Compatibility: Moodle 4.0+
 
 DESCRIPTION
@@ -18,9 +18,13 @@ FEATURES
 * Word-compatible HTML output for easy document processing
 * RTL language support
 * Overall summary with total courses enrolled
-* Grade visibility and permission checking
+* Grade visibility and permission checking (integrates with local_parentportal for parent views)
 * Print-friendly CSS styling
 * Admin capability to view any student's cross-course report
+* AI-powered performance analysis (instant modal-based feedback & email reports via webhooks)
+* Exportable AI reports (print and PDF download functionality)
+* Rate-limiting cooldown protection (per-user preferences tracking)
+
 
 USE CASES
 ---------
@@ -37,6 +41,7 @@ INSTALLATION
 2. Extract to /path/to/moodle/report/studentgrades/
 3. Visit Site Administration > Notifications to complete installation
 4. Configure color settings at Site Administration > Plugins > Reports > Student Course Grades
+5. Set up AI Analysis Settings (enable buttons, n8n webhook details, prompts, and rate limits) on the same page.
 
 PERMISSIONS
 -----------
@@ -67,6 +72,15 @@ Both plugins can coexist and serve different purposes.
 
 RELEASE NOTES
 -------------
+
+Version 1.1.2 (June 2026)
+----------------------------
+* Added AI-Powered Performance Analysis features
+* Support for Moodle Core AI Subsystem (Moodle 4.5+) for instant on-screen modal analysis
+* Support for external webhook (n8n) integration to process and email analysis reports
+* Print and PDF download capabilities for on-screen AI analyses
+* Cooldown rate limiting (minutes) per student to control API credit/token usage
+* Automatic parent-access logic via integration with local_parentportal
 
 Version 1.0.0 (August 2025)
 ----------------------------
