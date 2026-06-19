@@ -7,7 +7,7 @@ Compatibility: Moodle 4.0+
 
 DESCRIPTION
 -----------
-The Student Course Grades Report plugin allows users to view and export their grade reports from ALL courses they are enrolled in as a single comprehensive HTML document. Unlike traditional grade reports that show one course at a time, this plugin provides a holistic view of a student's academic performance across their entire enrollment.
+The Student Course Grades Report plugin allows users to view, export, and dynamically analyze their grade reports from ALL courses they are enrolled in as a single comprehensive HTML document. Unlike traditional grade reports that show one course at a time, this plugin provides a holistic view of a student's academic performance across their entire enrollment history, enhanced by AI-powered academic performance evaluations.
 
 FEATURES
 --------
@@ -18,37 +18,38 @@ FEATURES
 * Word-compatible HTML output for easy document processing
 * RTL language support
 * Overall summary with total courses enrolled
-* Grade visibility and permission checking (integrates with local_parentportal for parent views)
+* Grade visibility and permission checking (fully integrates with local_parentportal for parent/child relationship access)
 * Print-friendly CSS styling
 * Admin capability to view any student's cross-course report
-* AI-powered performance analysis (instant modal-based feedback & email reports via webhooks)
-* Exportable AI reports (print and PDF download functionality)
-* Rate-limiting cooldown protection (per-user preferences tracking)
-
+* AI-powered Performance Analysis:
+  - Instant on-screen feedback using Moodle 4.5+ Core AI manager in an interactive modal
+  - Asynchronous webhook integration (e.g. n8n) to process grades and email results
+  - Direct PDF export and printing of AI feedback
+  - Customizable system prompt templates and rate-limiting request cooldowns
 
 USE CASES
 ---------
-* Students preparing academic portfolios
-* Students applying for scholarships (need comprehensive grade report)
+* Students preparing academic portfolios or reviewing cross-course progress
+* Students applying for scholarships (needing comprehensive grade reports)
 * Academic advisors reviewing student progress across all courses
-* Parents viewing their child's complete academic record
-* End-of-semester comprehensive grade summaries
+* Parents viewing and obtaining AI feedback on their child's academic record
+* End-of-semester comprehensive grade and AI-driven summaries
 * Transfer students needing complete transcripts
 
 INSTALLATION
 ------------
 1. Download the plugin ZIP file
-2. Extract to /path/to/moodle/report/studentgrades/
-3. Visit Site Administration > Notifications to complete installation
+2. Extract to /path/to/moodle/report/studentgrades/ (root folder in zip must be named 'studentgrades')
+3. Visit Site Administration > Notifications to complete database installation
 4. Configure color settings at Site Administration > Plugins > Reports > Student Course Grades
-5. Set up AI Analysis Settings (enable buttons, n8n webhook details, prompts, and rate limits) on the same page.
+5. Set up AI Analysis Settings (enable buttons, n8n webhook details, prompts, and rate limits) on the same page
 
 PERMISSIONS
 -----------
-* report/studentgrades:view - View own course grades report
+* report/studentgrades:view - View own course grades report and trigger AI analysis
   - Assigned to: students, teachers, editing teachers, managers
   
-* report/studentgrades:viewall - View any user's course grades report
+* report/studentgrades:viewall - View any user's course grades report and trigger AI analysis
   - Assigned to: teachers, editing teachers, managers
 
 ACCESS
