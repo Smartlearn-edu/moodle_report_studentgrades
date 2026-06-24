@@ -17,7 +17,6 @@ defined('MOODLE_INTERNAL') || die();
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
-=======
  *
  * @package     report_studentgrades
  * @copyright   2025 Mohammad Nabil <mohammad@smartlearn.education>
