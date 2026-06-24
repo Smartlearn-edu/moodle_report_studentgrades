@@ -1,0 +1,543 @@
+Help Center
+
+2
+
+Help Center / Moodle Marketplace Review Tickets / MMRT-89
+
+Student Course Grades (report_studentgrades)
+
+‫ ﻣﺤﻤﺪ ﻧﺒﻴﻞ‬raised this on Saturday 2:18 AM
+
+Show details
+
+Activity
+Automatic response Today 5:27 AM
+Your request status has changed to In review.
+Volodymyr Dovhan Today 5:44 AM
+Hello,
+Thank you for the plugin and your contribution.
+I found a few issues during the review. Please address them and resubmit the plugin for review.
+1. Consider Adding GitHub Actions Support – It's Free and Highly Useful
+Priority: LOW
+Recommendation
+Some of the tests run by the
+
+Home | Moodle.org plugins database can also be executed
+
+automatically using GitHub Actions on each commit to your GitHub repository. Enabling this helps
+ensure future changes continue to meet Moodle guidelines.
+Setup:
+• Download GitHub Actions CI configuration:
+
+moodle-plugin-ci/gha.dist.yml at main · moodlehq/
+
+moodle-plugin-ci
+• Rename it to ci.yml
+• Place it in .github/workflows (example:
+
+https://github.com/danmarsden/moodle-mod_attenda
+
+nce/blob/MOODLE_311_STABLE/.github/workflows/ci.yml) Connect your Github account
+Once set up, each commit triggers tests and provides visual pass/fail feedback.
+Optional pre-check:
+• You can also run your plugin through
+
+Plugin Reviewer before submission. It can catch many
+
+common issues early, but it does not replace official Moodle validation and CI checks.
+
+Documentation:
+•
+
+GitHub - moodlehq/moodle-plugin-ci: Helps running Moodle plugins analysis checks and tests
+under various CI environments.
+
+•
+
+moodle-plugin-ci/gha.dist.yml at main · moodlehq/moodle-plugin-ci
+
+•
+
+moodle-mod_attendance/.github/workflows/ci.yml at MOODLE_311_STABLE · danmarsden/m
+oodle-mod_attendance
+
+•
+
+Plugin Reviewer
+
+2. Incorrect repository name
+Priority: LOW
+Recommendation
+Repository name doesn't follow the recommended pattern moodle-{plugintype}_{pluginname} for
+consistent developer experience. This is not a strong requirement, just an option to provide a consistent
+experience for other Moodle developers.
+Documentation:
+•
+
+Moodle Marketplace Plugin Submission Guidelines | Code repository name
+
+Code excerpts:
+1
+
+Repository name 'moodle_report_studentgrades' does not match recommended 'moodle-report_studentgrad
+
+3. Missing plugin license file
+Priority: BLOCKER
+Approval blocker: Licensing/IP compliance
+Recommendation
+Plugin package does not include a license file in the plugin root. Include a LICENSE file so reviewers and
+users can verify the plugin licensing terms.
+Documentation:
+•
+
+Moodle Marketplace Plugin Submission Guidelines | Licensing
+
+Code excerpts:
+• File: LICENSE
+1
+
+Missing package-level license file in the plugin root.
+
+4. External API Calls
+Priority: HIGH
+Approval blocker: External system privacy API
+Recommendation
+Plugin makes external API calls. If personal data may be transmitted, the Privacy Provider must declare
+this using add_external_location_link(). If no personal data is sent, document that decision clearly in the
+provider implementation.
+
+Documentation:
+•
+
+Privacy API | Moodle Developer Resources
+
+•
+
+Privacy API | Moodle Developer Resources
+
+Code excerpts:
+• File: classes/exporter.php
+1
+
+928:
+
+$json_data = json_encode($data);
+
+2
+
+930:
+
+$response = $curl->post($url, $json_data);
+
+3
+
+931:
+
+$info = $curl->get_info();
+
+• File: classes/privacy/provider.php
+1
+
+External API call patterns found in: classes/exporter.php. Privacy provider does not declare add_ex
+
+5. Deprecated print_error() usage
+Priority: HIGH
+Recommendation
+Plugin uses deprecated print_error() function. In newer Moodle versions this legacy API is removed, so
+this can become an undefined function runtime failure. Replace it with throw new moodle_exception(...)
+or a more specific supported exception, using language strings from the plugin language pack.
+Documentation:
+•
+
+Moodle Marketplace Plugin Submission Guidelines | Coding
+
+Code excerpts:
+• File: download_pdf.php
+1
+
+15: require_once(__DIR__ . '/lib.php');
+
+2
+
+16: if (!report_studentgrades_can_access_user($userid)) {
+
+3
+
+17:
+
+4
+
+18: }
+
+print_error('nopermissions');
+
+�. PARAM_RAW Security Risk
+Priority: HIGH
+Approval blocker: Security guidelines
+Recommendation
+Plugin uses PARAM_RAW for parameter validation. PARAM_RAW should only be used when there is no
+other option and when strict validation/cleaning is performed elsewhere. In most cases, use specific
+parameter types (for example: PARAM_INT for integers, PARAM_TEXT for plain text, PARAM_ALPHA/
+PARAM_ALPHANUM for constrained formats) to reduce XSS and injection risk.
+Documentation:
+•
+
+Security | Moodle Developer Resources
+
+Code excerpts:
+• File: download_pdf.php
+1
+
+5: $userid = optional_param('userid', $USER->id, PARAM_INT);
+
+2
+
+6: $html_content = optional_param('html_content', '', PARAM_RAW); // RAW to allow HTML
+
+3
+
+7: $action = optional_param('action', '', PARAM_ALPHA);
+
+7. Hard-coded language strings
+Priority: MEDIUM
+Recommendation
+User-facing text is hard-coded in the source code instead of using Moodle's string API (get_string()).
+This prevents translation.
+Documentation:
+•
+
+Moodle Marketplace Plugin Submission Guidelines | Strings
+
+Code excerpts:
+• File: download_pdf.php
+1
+
+35:
+
+exit;
+
+2
+
+36: } else {
+
+3
+
+37:
+
+4
+
+38: }
+
+echo "No content to export.";
+
+• File: index.php
+1
+
+120:
+
+'button',
+
+2
+
+121:
+
+'Analyze & Email Me',
+
+3
+
+122:
+
+array('type' => 'submit', 'class' => 'btn btn-info btn-lg')
+
+• File: ajax_ai.php
+1
+
+50:
+
+$response['success'] = false;
+
+2
+
+51:
+
+$response['message'] = "Daily limit reached. Please wait $minutes_remaining min
+
+3
+
+52:
+
+echo json_encode($response);
+
+�. Update Ajax implementation to External Services
+Priority: MEDIUM
+Recommendation
+Plugin uses legacy AJAX patterns instead of External Services, missing improved security and
+compatibility with Moodle standards.
+• How to fix:
+◦ Replace direct ajax.php endpoints with External Services in classes/external/* + db/
+services.php .
+
+◦ Call services from JS via core/ajax with proper methodname and args.
+◦ Keep validation/capability checks inside external API execute methods.
+Documentation:
+•
+
+External Services | Moodle Developer Resources
+
+•
+
+Writing a new service | Moodle Developer Resources
+
+•
+
+AJAX | Moodle Developer Resources
+
+Code excerpts:
+• File: index.php
+1
+
+153:
+
+modal.setBody('<div class=\"text-center\" style=\"padding:20px;\"><i class=\"f
+
+2
+
+155:
+
+$.ajax({
+
+3
+
+156:
+
+url: 'ajax_ai.php',
+
+4
+
+157:
+
+method: 'GET',
+
+• File: ajax_ai.php
+1
+
+1: <?php
+
+2
+
+2: define('AJAX_SCRIPT', true);
+
+3
+
+4: require_once('../../config.php');
+
+9. Missing File Boilerplate Headers
+Priority: MEDIUM
+Recommendation
+Plugin source files (PHP and JS including AMD source) are missing Moodle boilerplate license/header
+markers expected for plugin submissions.
+• How to fix:
+◦ Add the standard Moodle boilerplate header at the top of each flagged source file.
+◦ When the header is fully absent, copy a complete boilerplate block instead of patching
+individual tags.
+◦ For all source files, include explicit @copyright and @license markers.
+Documentation:
+• https://moodle.atlassian.net/wiki/external/
+ODRhYjAyNTY4NDVmNGJlNjljN2ViMzkwYzdmYmIwMGI#Boilerplate
+Code excerpts:
+• File: ajax_ai.php
+1
+
+Missing standard Moodle boilerplate header; add the full boilerplate block.
+
+• File: download_pdf.php
+1
+
+Missing standard Moodle boilerplate header; add the full boilerplate block.
+
+10. Potential performance issues with requests to DB
+Priority: MEDIUM
+Recommendation
+The plugin fetches grade records and activity records inside recursive grade-tree loops. On users with
+many courses and grade items this creates repeated per-item database/API calls. Preload grade
+records for the user/course in bulk where possible, cache activity intros by module/item id, and pass
+the preloaded data through the rendering/export routines instead of fetching inside each loop iteration.
+Documentation:
+• https://moodledev.io/docs/4.5/apis/core/dml#performance
+Code excerpts:
+• File: classes/exporter.php
+1
+
+261:
+
+private function process_grade_tree_children($children, $userid, $level = 0)
+
+2
+
+265:
+
+3
+
+276:
+
+$html .= $this->process_grade_tree_children($child['children'], $userid, $
+
+4
+
+304:
+
+$grade_grade = \grade_grade::fetch(array('itemid' => $grade_item->id, 'userid'
+
+5
+
+308:
+
+$description = $this->get_activity_description($grade_item);
+
+foreach ($children as $key => $child) {
+
+• File: classes/exporter.php
+1
+
+369:
+
+private function calculate_category_total($category, $userid)
+
+2
+
+371:
+
+$category_item = \grade_item::fetch(array('itemtype' => 'category', 'iteminstance' =>
+
+3
+
+376:
+
+$category_grade = \grade_grade::fetch(array('itemid' => $category_item->id, 'userid' =
+
+4
+
+392:
+
+5
+
+399:
+
+private function get_course_total($userid, $courseid)
+
+$course_grade = \grade_grade::fetch(array('itemid' => $course_item->id, 'userid' => $u
+
+• File: classes/exporter.php
+1
+
+727:
+
+2
+
+851:
+
+3
+
+855:
+
+4
+
+876:
+
+5
+
+884:
+
+$activity = $DB->get_record($grade_item->itemmodule, array('id' => $grade_item->it
+private function extract_grade_tree_data($children, $userid)
+foreach ($children as $child) {
+
+$grade_grade = \grade_grade::fetch(array('itemid' => $grade_item->id, 'userid'
+'description' => $this->get_activity_description($grade_item)
+
+11. Transition to Templates, Output API, and AMD JavaScript Modules
+Priority: MEDIUM
+Recommendation
+Plugin uses mixed PHP/HTML rendering and inline/legacy JavaScript patterns. Consolidate rendering
+with Templates + Output API and move page/template JS into AMD modules.
+• How to fix:
+◦ Move HTML markup from PHP echo/print blocks into Mustache templates under templates/ .
+◦ Build a templatedata array in PHP and render with $OUTPUT->render_from_template('<component>/
+<template>', $templatedata) .
+
+◦ Move inline/template JavaScript into amd/src/<module>.js and initialize via $PAGE->requires>js_call_amd(...) .
+
+◦ Keep PHP focused on data retrieval and access checks; keep presentation in templates.
+Documentation:
+• https://moodledev.io/docs/4.5/guides/templates
+• https://moodledev.io/docs/4.4/apis/subsystems/output
+• https://moodledev.io/docs/5.0/guides/javascript/modules
+Code excerpts:
+• File: index.php
+1
+
+214:
+
+";
+
+2
+
+216:
+
+$PAGE->requires->js_amd_inline($js);
+
+3
+
+217: }
+
+12. Missing language string definitions
+Recommendation
+Missing language string definitions were detected. Please define missing strings in the plugin language
+file(s).
+Code excerpts:
+• File: studentgrades/download_pdf.php
+1
+
+✗ Missing required string (string_key: nopermissions, component: report_studentgrades, file: studen
+
+Automatic response Today 5:44 AM
+Your request status has changed to Changes needed.
+
+Add a comment
+
+Apps
+Approval for Jira
+Approval Name
+
+User/s who can
+approve/reject:
+
+Status
+
+No approval mapped for this issue type
+
+Approval History
+
+No approval history yet!
+
+Action Date
+
+Action
+
+Comment
+
+Status
+CHANGES NEEDED
+
+Notiﬁcations on
+Request type
+Plugin review
+Shared with
+‫ﻣﺤﻤﺪ ﻧﺒﻴﻞ‬
+Creator
+
+Powered by
+
+Jira Service Management
+
+

@@ -24,7 +24,8 @@
 
 namespace report_studentgrades\privacy;
 
-use core_privacy\local\metadata\null_provider;
+use core_privacy\local\metadata\collection;
+use core_privacy\local\metadata\provider as metadata_provider;
 
 /**
  * Privacy API implementation for the Student Course Grades report plugin
@@ -33,15 +34,20 @@ use core_privacy\local\metadata\null_provider;
  * to export grade data that is already stored by Moodle's core grade system.
  * The exported HTML files are generated on-demand and not persistently stored.
  */
-class provider implements null_provider {
+class provider implements metadata_provider {
 
     /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
+     * Returns metadata information about this plugin.
      *
-     * @return string
+     * @param collection $collection
+     * @return collection
      */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
+    public static function get_metadata(collection $collection): collection {
+        $collection->add_external_location_link('n8n_webhook', [
+            'userid' => 'privacy:metadata:userid',
+            'grades' => 'privacy:metadata:grades'
+        ], 'privacy:metadata:n8n_webhook_summary');
+
+        return $collection;
     }
 }

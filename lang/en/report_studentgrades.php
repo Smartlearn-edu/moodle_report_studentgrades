@@ -44,6 +44,18 @@ $string['viewmygrades'] = 'View My Grades';
 $string['exportmygrades'] = 'Export My Grades';
 $string['privacy:metadata'] = 'The Student Course Grades report plugin does not store any personal data.';
 
+// Added for marketplace compliance
+$string['nocontenttoexport'] = 'No content to export.';
+$string['analyzeandemail'] = 'Analyze & Email Me';
+$string['dailylimitreached'] = 'Daily limit reached. Please wait {$a} minute(s) before generating a new analysis.';
+$string['viewanalysisnow'] = 'View Analysis Now';
+$string['generatinganalysis'] = 'Generating Analysis...';
+$string['talkingtocoreai'] = 'Talking to Moodle AI...';
+
+$string['privacy:metadata:userid'] = 'The user ID.';
+$string['privacy:metadata:grades'] = 'The user\'s grades data.';
+$string['privacy:metadata:n8n_webhook_summary'] = 'Grades data is sent to the n8n webhook for AI analysis.';
+
 // Color Settings
 $string['colorsettings'] = 'Color Settings';
 $string['colorsettingsdesc'] = 'Customize the colors used in the HTML export grade reports. These settings allow you to match your institution\'s branding and improve visual accessibility.';

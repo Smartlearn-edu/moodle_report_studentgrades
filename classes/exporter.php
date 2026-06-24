@@ -41,6 +41,11 @@ class exporter
     /** @var context User context */
     private $usercontext;
 
+    private $preloaded_grades = [];
+    private $preloaded_category_items = [];
+    private $preloaded_course_items = [];
+    private $activity_description_cache = [];
+
     /**
      * Constructor
      *
@@ -301,7 +306,7 @@ class exporter
                     continue;
                 }
 
-                $grade_grade = \grade_grade::fetch(array('itemid' => $grade_item->id, 'userid' => $userid));
+                $grade_grade = $this->get_preloaded_grade($grade_item, $userid);
 
                 $html .= '<tr class="grade-row level-' . $level . '">';
 
@@ -368,12 +373,12 @@ class exporter
      */
     private function calculate_category_total($category, $userid)
     {
-        $category_item = \grade_item::fetch(array('itemtype' => 'category', 'iteminstance' => $category->id));
+        $category_item = $this->get_category_item($category);
         if (!$category_item) {
             return null;
         }
 
-        $category_grade = \grade_grade::fetch(array('itemid' => $category_item->id, 'userid' => $userid));
+        $category_grade = $this->get_preloaded_grade($category_item, $userid);
         if (!$category_grade || is_null($category_grade->finalgrade)) {
             return null;
         }
@@ -391,12 +396,12 @@ class exporter
      */
     private function get_course_total($userid, $courseid)
     {
-        $course_item = \grade_item::fetch_course_item($courseid);
+        $course_item = $this->get_course_item_cached($courseid);
         if (!$course_item) {
             return null;
         }
 
-        $course_grade = \grade_grade::fetch(array('itemid' => $course_item->id, 'userid' => $userid));
+        $course_grade = $this->get_preloaded_grade($course_item, $userid);
         if (!$course_grade || is_null($course_grade->finalgrade)) {
             return null;
         }
@@ -716,10 +721,16 @@ class exporter
             return '';
         }
 
+        $cache_key = $grade_item->itemmodule . '_' . $grade_item->iteminstance;
+        if (isset($this->activity_description_cache[$cache_key])) {
+            return $this->activity_description_cache[$cache_key];
+        }
+
         try {
             // Get course module
             $cm = get_coursemodule_from_instance($grade_item->itemmodule, $grade_item->iteminstance, $grade_item->courseid);
             if (!$cm) {
+                $this->activity_description_cache[$cache_key] = '';
                 return '';
             }
 
@@ -734,12 +745,62 @@ class exporter
                 // Rewrite plugin file URLs to make images work
                 $description = file_rewrite_pluginfile_urls($activity->intro, 'pluginfile.php', $modcontext->id, 'mod_' . $grade_item->itemmodule, 'intro', null);
 
-                return format_text($description, $activity->introformat, array('noclean' => true, 'para' => false, 'context' => $modcontext));
+                $formatted = format_text($description, $activity->introformat, array('noclean' => true, 'para' => false, 'context' => $modcontext));
+                $this->activity_description_cache[$cache_key] = $formatted;
+                return $formatted;
             }
         } catch (\Exception $e) {
             // Silently fail to avoid breaking the report
         }
+        
+        $this->activity_description_cache[$cache_key] = '';
         return '';
+    }
+
+    private function preload_course_grades($courseid, $userid) {
+        global $DB;
+        if (!isset($this->preloaded_grades[$courseid])) {
+            $this->preloaded_grades[$courseid] = [];
+            $sql = "SELECT g.* FROM {grade_grades} g JOIN {grade_items} i ON i.id = g.itemid WHERE g.userid = ? AND i.courseid = ?";
+            if ($grades = $DB->get_records_sql($sql, [$userid, $courseid])) {
+                foreach ($grades as $grade) {
+                    $this->preloaded_grades[$courseid][$grade->itemid] = new \grade_grade($grade, false);
+                }
+            }
+        }
+    }
+
+    private function get_preloaded_grade($grade_item, $userid) {
+        $courseid = $grade_item->courseid;
+        if ($courseid) {
+            $this->preload_course_grades($courseid, $userid);
+            if (array_key_exists($grade_item->id, $this->preloaded_grades[$courseid])) {
+                return $this->preloaded_grades[$courseid][$grade_item->id];
+            }
+            return false;
+        }
+        return \grade_grade::fetch(array('itemid' => $grade_item->id, 'userid' => $userid));
+    }
+
+    private function get_category_item($category) {
+        $courseid = $category->courseid;
+        if (!isset($this->preloaded_category_items[$courseid])) {
+            $this->preloaded_category_items[$courseid] = [];
+            global $DB;
+            if ($items = $DB->get_records('grade_items', ['courseid' => $courseid, 'itemtype' => 'category'])) {
+                foreach ($items as $item) {
+                    $this->preloaded_category_items[$courseid][$item->iteminstance] = new \grade_item($item, false);
+                }
+            }
+        }
+        return $this->preloaded_category_items[$courseid][$category->id] ?? null;
+    }
+
+    private function get_course_item_cached($courseid) {
+        if (!isset($this->preloaded_course_items[$courseid])) {
+            $this->preloaded_course_items[$courseid] = \grade_item::fetch_course_item($courseid);
+        }
+        return $this->preloaded_course_items[$courseid];
     }
 
     /**
@@ -873,7 +934,7 @@ class exporter
                     continue;
                 }
 
-                $grade_grade = \grade_grade::fetch(array('itemid' => $grade_item->id, 'userid' => $userid));
+                $grade_grade = $this->get_preloaded_grade($grade_item, $userid);
 
                 $item_data = array(
                     'type' => 'item',

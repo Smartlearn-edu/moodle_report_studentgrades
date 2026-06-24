@@ -1,0 +1,80 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template report_studentgrades/index
+
+    Student grades report index page template.
+
+    Context variables required for this template:
+    * showuserselection - boolean
+    * userid - int
+    * fullname - string
+    * enableemailanalysis - boolean
+    * enableinstantanalysis - boolean
+    * users - array of objects (id, fullname, selected)
+
+    Example context (json):
+    {
+        "showuserselection": true,
+        "userid": 2,
+        "fullname": "John Doe",
+        "enableemailanalysis": true,
+        "enableinstantanalysis": true,
+        "users": [
+            { "id": 2, "fullname": "John Doe", "selected": true },
+            { "id": 3, "fullname": "Jane Doe", "selected": false }
+        ]
+    }
+}}
+{{#showuserselection}}
+    <h2>{{#str}} selectuser, report_studentgrades {{/str}}</h2>
+    <form method="get" action="">
+        <div class="form-group">
+            <label for="userid">{{#str}} selectuser, report_studentgrades {{/str}}</label>
+            <select id="userid" name="userid" class="form-control">
+                <option value="">{{#str}} choosedots {{/str}}</option>
+                {{#users}}
+                    <option value="{{id}}" {{#selected}}selected{{/selected}}>{{fullname}}</option>
+                {{/users}}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">{{#str}} view {{/str}}</button>
+    </form>
+    <hr>
+{{/showuserselection}}
+
+<h2>{{fullname}}</h2>
+
+<form method="post" action="" style="display: inline-block; margin-right: 10px;">
+    <input type="hidden" name="userid" value="{{userid}}">
+    <input type="hidden" name="action" value="export">
+    <button type="submit" class="btn btn-primary btn-lg">{{#str}} exporthtml, report_studentgrades {{/str}}</button>
+</form>
+
+{{#enableemailanalysis}}
+    <form method="post" action="" style="display: inline-block;">
+        <input type="hidden" name="userid" value="{{userid}}">
+        <input type="hidden" name="action" value="analyze">
+        <button type="submit" class="btn btn-info btn-lg">{{#str}} analyzeandemail, report_studentgrades {{/str}}</button>
+    </form>
+{{/enableemailanalysis}}
+
+{{#enableinstantanalysis}}
+    <button id="btn-moodle-ai-test" class="btn btn-success btn-lg" style="margin-left: 10px;" data-userid="{{userid}}">
+        {{#str}} viewanalysisnow, report_studentgrades {{/str}}
+    </button>
+{{/enableinstantanalysis}}

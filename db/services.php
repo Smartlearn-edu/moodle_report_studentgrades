@@ -15,17 +15,20 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
+ * Services definitions.
+ *
  * @package     report_studentgrades
  * @copyright   2025 Mohammad Nabil <mohammad@smartlearn.education>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2026062400;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2022112800;        // Requires this Moodle version
-$plugin->component = 'report_studentgrades'; // Full name of the plugin (used for diagnostics)
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v1.1.3';
+$functions = [
+    'report_studentgrades_test_ai' => [
+        'classname'   => 'report_studentgrades\external\test_ai',
+        'methodname'  => 'execute',
+        'description' => 'Test AI integration for student grades',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ]
+];

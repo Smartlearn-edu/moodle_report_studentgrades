@@ -1,9 +1,32 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * Download PDF action.
+ *
+ * @package     report_studentgrades
+ * @copyright   2025 Mohammad Nabil <mohammad@smartlearn.education>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 require_once('../../config.php');
 require_once($CFG->libdir . '/pdflib.php');
-
 $userid = optional_param('userid', $USER->id, PARAM_INT);
-$html_content = optional_param('html_content', '', PARAM_RAW); // RAW to allow HTML
+// We use PARAM_RAW here to allow HTML, but we must immediately clean it before use
+$html_content = optional_param('html_content', '', PARAM_RAW);
+$html_content = clean_param($html_content, PARAM_CLEANHTML);
 $action = optional_param('action', '', PARAM_ALPHA);
 
 require_login();
@@ -14,7 +37,7 @@ require_login();
 $context = context_user::instance($userid);
 require_once(__DIR__ . '/lib.php');
 if (!report_studentgrades_can_access_user($userid)) {
-    print_error('nopermissions');
+    throw new \moodle_exception('nopermissions', 'error');
 }
 
 if ($action === 'downloadpdf' && !empty($html_content)) {
@@ -34,5 +57,5 @@ if ($action === 'downloadpdf' && !empty($html_content)) {
     $pdf->Output('AI_Analysis_' . $userid . '_' . date('YmdHis') . '.pdf', 'D');
     exit;
 } else {
-    echo "No content to export.";
+    echo get_string('nocontenttoexport', 'report_studentgrades');
 }
