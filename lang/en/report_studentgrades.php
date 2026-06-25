@@ -50,6 +50,10 @@ $string['dailylimitreached'] = 'Daily limit reached. Please wait {$a} minute(s) 
 $string['viewanalysisnow'] = 'View Analysis Now';
 $string['generatinganalysis'] = 'Generating Analysis...';
 $string['talkingtocoreai'] = 'Talking to Moodle AI...';
+$string['aianalysisresult'] = 'AI Analysis Result';
+$string['downloadpdf'] = 'Download PDF';
+$string['communicationerror'] = 'Communication Error';
+$string['defaultprompt'] = "You are an educational AI assistant. Analyze the following student performance data. The data includes course descriptions, activities, max grades, student grades, and activity descriptions. Provide a constructive analysis of the student\'s strengths and areas for improvement based on this data.";
 
 $string['privacy:metadata:userid'] = 'The user ID.';
 $string['privacy:metadata:grades'] = 'The user\'s grades data.';

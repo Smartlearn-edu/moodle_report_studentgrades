@@ -34,7 +34,6 @@ use core_privacy\local\metadata\provider as metadata_provider;
  * The exported HTML files are generated on-demand and not persistently stored.
  */
 class provider implements metadata_provider {
-
     /**
      * Returns metadata information about this plugin.
      *
@@ -44,7 +43,7 @@ class provider implements metadata_provider {
     public static function get_metadata(collection $collection): collection {
         $collection->add_external_location_link('n8n_webhook', [
             'userid' => 'privacy:metadata:userid',
-            'grades' => 'privacy:metadata:grades'
+            'grades' => 'privacy:metadata:grades',
         ], 'privacy:metadata:n8n_webhook_summary');
 
         return $collection;

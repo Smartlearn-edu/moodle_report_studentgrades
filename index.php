@@ -39,7 +39,7 @@ $usercontext = context_user::instance($userid);
 
 // Setup page FIRST (moved up before export)
 $PAGE->set_context($usercontext);
-$PAGE->set_url('/report/studentgrades/index.php', array('userid' => $userid));
+$PAGE->set_url('/report/studentgrades/index.php', ['userid' => $userid]);
 $PAGE->set_title(get_string('pluginname', 'report_studentgrades'));
 $PAGE->set_heading(get_string('pluginname', 'report_studentgrades'));
 $PAGE->set_pagelayout('report');
@@ -66,17 +66,17 @@ echo $OUTPUT->header();
 // Prepare data for template
 $users_list = [];
 if (has_capability('report/studentgrades:viewall', context_system::instance()) && $userid != $USER->id) {
-    $all_users = $DB->get_records_menu('user', array('deleted' => 0), 'lastname, firstname', 'id, ' . $DB->sql_fullname() . ' AS fullname');
+    $all_users = $DB->get_records_menu('user', ['deleted' => 0], 'lastname, firstname', 'id, ' . $DB->sql_fullname() . ' AS fullname');
     foreach ($all_users as $uid => $uname) {
         $users_list[] = [
             'id' => $uid,
             'fullname' => $uname,
-            'selected' => ($uid == $userid)
+            'selected' => ($uid == $userid),
         ];
     }
 }
 
-$user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+$user = $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST);
 
 $templatedata = [
     'showuserselection' => has_capability('report/studentgrades:viewall', context_system::instance()) && $userid != $USER->id,
@@ -84,7 +84,7 @@ $templatedata = [
     'fullname' => fullname($user),
     'enableemailanalysis' => get_config('report_studentgrades', 'enableemailanalysis'),
     'enableinstantanalysis' => get_config('report_studentgrades', 'enableinstantanalysis'),
-    'users' => $users_list
+    'users' => $users_list,
 ];
 
 echo $OUTPUT->render_from_template('report_studentgrades/index', $templatedata);

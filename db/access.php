@@ -23,25 +23,25 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'report/studentgrades:view' => array(
+$capabilities = [
+    'report/studentgrades:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_USER,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
             'user' => CAP_ALLOW,
-        ),
-    ),
-    'report/studentgrades:viewall' => array(
+        ],
+    ],
+    'report/studentgrades:viewall' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
+        'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
-    ),
-);
+        ],
+    ],
+];

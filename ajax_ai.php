@@ -1,4 +1,27 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * AJAX handler for AI analysis.
+ *
+ * @package    report_studentgrades
+ * @copyright  2025 Mohammad Nabil <mohammad@smartlearn.education>
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 define('AJAX_SCRIPT', true);
 
 require_once('../../config.php');
@@ -20,7 +43,7 @@ require_once(__DIR__ . '/lib.php');
 if (!report_studentgrades_can_access_user($userid, $current_userid)) {
     $response = [
         'success' => false,
-        'message' => "Permission Denied. You are logged in as User ID: $current_userid but requested data for User ID: $userid. Appropriate capability or linked parent account required."
+        'message' => "Permission Denied. You are logged in as User ID: $current_userid but requested data for User ID: $userid. Appropriate capability or linked parent account required.",
     ];
     echo json_encode($response);
     exit;
@@ -28,7 +51,7 @@ if (!report_studentgrades_can_access_user($userid, $current_userid)) {
 
 $response = [
     'success' => false,
-    'message' => ''
+    'message' => '',
 ];
 
 if ($action === 'test_ai') {
@@ -48,7 +71,7 @@ if ($action === 'test_ai') {
                 // Rate limit exceeded
                 $minutes_remaining = ceil(($cooldown_seconds - $time_diff) / 60);
                 $response['success'] = false;
-                $response['message'] = "Daily limit reached. Please wait $minutes_remaining minute(s) before generating a new analysis.";
+                $response['message'] = get_string('dailylimitreached', 'report_studentgrades', $minutes_remaining);
                 echo json_encode($response);
                 exit;
             }
@@ -69,9 +92,7 @@ if ($action === 'test_ai') {
         // Construct the prompt
         $data_json = json_encode($grade_data, JSON_PRETTY_PRINT);
 
-        $default_prompt = "You are an educational AI assistant. Analyze the following student performance data. " .
-            "The data includes course descriptions, activities, max grades, student grades, and activity descriptions. " .
-            "Provide a constructive analysis of the student's strengths and areas for improvement based on this data.";
+        $default_prompt = get_string('defaultprompt', 'report_studentgrades');
 
         $config_prompt = get_config('report_studentgrades', 'aiprompt');
         if (empty($config_prompt)) {
@@ -126,7 +147,7 @@ if ($action === 'test_ai') {
                     'userid' => $userid,
                     'userid_type' => gettype($userid),
                     'prompt' => $prompt_text,
-                    'available_methods' => get_class_methods('\core_ai\manager')
+                    'available_methods' => get_class_methods('\core_ai\manager'),
                 ];
             }
         } else {

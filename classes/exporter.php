@@ -33,7 +33,6 @@ require_once($CFG->libdir . '/gradelib.php');
  */
 class exporter
 {
-
     /** @var int User ID */
     private $userid;
 
@@ -50,8 +49,7 @@ class exporter
      *
      * @param int $userid User ID
      */
-    public function __construct($userid)
-    {
+    public function __construct($userid) {
         $this->userid = $userid;
         $this->usercontext = \context_user::instance($userid);
     }
@@ -59,8 +57,7 @@ class exporter
     /**
      * Export user's grades from all courses as HTML
      */
-    public function export_user_grades()
-    {
+    public function export_user_grades() {
         global $CFG, $SITE, $DB;
 
         // Verify access
@@ -68,7 +65,7 @@ class exporter
             throw new \moodle_exception('nopermissions', 'error');
         }
 
-        $user = $DB->get_record('user', array('id' => $this->userid), '*', MUST_EXIST);
+        $user = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
 
         // Generate HTML content
         $html = $this->generate_grades_html($user);
@@ -89,8 +86,7 @@ class exporter
      * @param stdClass $user User object
      * @return string HTML content
      */
-    private function generate_grades_html($user)
-    {
+    private function generate_grades_html($user) {
         global $CFG, $SITE;
 
         $html = $this->get_html_header($user);
@@ -119,8 +115,7 @@ class exporter
      *
      * @return array Array of course objects
      */
-    private function get_user_courses()
-    {
+    private function get_user_courses() {
         global $DB;
 
         try {
@@ -141,7 +136,7 @@ class exporter
                     JOIN {user_enrolments} ue ON ue.enrolid = e.id
                     WHERE ue.userid = ? AND ue.status = 0 AND e.status = 0 AND c.visible = 1
                     ORDER BY c.fullname";
-            $courses = $DB->get_records_sql($sql, array($this->userid));
+            $courses = $DB->get_records_sql($sql, [$this->userid]);
             if (!empty($courses)) {
                 return $courses;
             }
@@ -149,7 +144,7 @@ class exporter
             error_log('report_studentgrades: Error getting courses from database: ' . $e->getMessage());
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -158,8 +153,7 @@ class exporter
      * @param stdClass $user User object
      * @return string HTML header
      */
-    private function get_html_header($user)
-    {
+    private function get_html_header($user) {
         global $SITE, $CFG;
 
         $html = '<!DOCTYPE html>';
@@ -203,13 +197,12 @@ class exporter
      * @param stdClass $course Course object
      * @return string HTML table
      */
-    private function get_course_grades_html($user, $course)
-    {
+    private function get_course_grades_html($user, $course) {
         global $CFG;
 
         try {
             $context = \context_course::instance($course->id);
-            $gpr = new \grade_plugin_return(array('type' => 'report', 'plugin' => 'studentgrades', 'courseid' => $course->id));
+            $gpr = new \grade_plugin_return(['type' => 'report', 'plugin' => 'studentgrades', 'courseid' => $course->id]);
             $gtree = new \grade_tree($course->id, false, false, null, $gpr);
 
             $html = '<div class="course-section">';
@@ -262,8 +255,7 @@ class exporter
      * @param int $level Nesting level
      * @return string HTML rows
      */
-    private function process_grade_tree_children($children, $userid, $level = 0)
-    {
+    private function process_grade_tree_children($children, $userid, $level = 0) {
         $html = '';
 
         foreach ($children as $key => $child) {
@@ -339,8 +331,7 @@ class exporter
     /**
      * Format grade value for display
      */
-    private function format_grade_value($grade_grade, $grade_item)
-    {
+    private function format_grade_value($grade_grade, $grade_item) {
         if (!$grade_grade || is_null($grade_grade->finalgrade)) {
             return '-';
         }
@@ -350,8 +341,7 @@ class exporter
     /**
      * Format grade range for display
      */
-    private function format_grade_range($grade_item)
-    {
+    private function format_grade_range($grade_item) {
         return \grade_format_gradevalue($grade_item->grademin, $grade_item, true) . ' - ' .
             \grade_format_gradevalue($grade_item->grademax, $grade_item, true);
     }
@@ -359,8 +349,7 @@ class exporter
     /**
      * Format grade percentage for display
      */
-    private function format_grade_percentage($grade_grade, $grade_item)
-    {
+    private function format_grade_percentage($grade_grade, $grade_item) {
         if (!$grade_grade || is_null($grade_grade->finalgrade)) {
             return '-';
         }
@@ -370,8 +359,7 @@ class exporter
     /**
      * Calculate category total grade
      */
-    private function calculate_category_total($category, $userid)
-    {
+    private function calculate_category_total($category, $userid) {
         $category_item = $this->get_category_item($category);
         if (!$category_item) {
             return null;
@@ -382,19 +370,18 @@ class exporter
             return null;
         }
 
-        return array(
+        return [
             'value' => \grade_format_gradevalue($category_grade->finalgrade, $category_item, true),
             'range' => \grade_format_gradevalue($category_item->grademin, $category_item, true) . ' - ' .
                 \grade_format_gradevalue($category_item->grademax, $category_item, true),
-            'percentage' => \grade_format_gradevalue($category_grade->finalgrade, $category_item, true, GRADE_DISPLAY_TYPE_PERCENTAGE)
-        );
+            'percentage' => \grade_format_gradevalue($category_grade->finalgrade, $category_item, true, GRADE_DISPLAY_TYPE_PERCENTAGE),
+        ];
     }
 
     /**
      * Get course total grade
      */
-    private function get_course_total($userid, $courseid)
-    {
+    private function get_course_total($userid, $courseid) {
         $course_item = $this->get_course_item_cached($courseid);
         if (!$course_item) {
             return null;
@@ -405,19 +392,18 @@ class exporter
             return null;
         }
 
-        return array(
+        return [
             'value' => \grade_format_gradevalue($course_grade->finalgrade, $course_item, true),
             'range' => \grade_format_gradevalue($course_item->grademin, $course_item, true) . ' - ' .
                 \grade_format_gradevalue($course_item->grademax, $course_item, true),
-            'percentage' => \grade_format_gradevalue($course_grade->finalgrade, $course_item, true, GRADE_DISPLAY_TYPE_PERCENTAGE)
-        );
+            'percentage' => \grade_format_gradevalue($course_grade->finalgrade, $course_item, true, GRADE_DISPLAY_TYPE_PERCENTAGE),
+        ];
     }
 
     /**
      * Generate overall summary HTML
      */
-    private function get_overall_summary_html($courses)
-    {
+    private function get_overall_summary_html($courses) {
         $html = '<div class="overall-summary">';
         $html .= '<h2>' . get_string('overallsummary', 'report_studentgrades') . '</h2>';
         $html .= '<p><strong>' . get_string('totalcourses', 'report_studentgrades') . ':</strong> ' . count($courses) . '</p>';
@@ -428,8 +414,7 @@ class exporter
     /**
      * Check if user can view grade item
      */
-    private function can_view_grade_item($grade_item)
-    {
+    private function can_view_grade_item($grade_item) {
         try {
             if ($grade_item->is_hidden()) {
                 return false;
@@ -444,8 +429,7 @@ class exporter
     /**
      * Check if current user can view this user's grades
      */
-    private function can_view_user_grades()
-    {
+    private function can_view_user_grades() {
         global $CFG;
         require_once($CFG->dirroot . '/report/studentgrades/lib.php');
         return report_studentgrades_can_access_user($this->userid);
@@ -454,8 +438,7 @@ class exporter
     /**
      * Get color setting with fallback to default
      */
-    private function get_color_setting($setting, $default)
-    {
+    private function get_color_setting($setting, $default) {
         $value = get_config('report_studentgrades', $setting);
         return !empty($value) ? $value : $default;
     }
@@ -463,9 +446,8 @@ class exporter
     /**
      * Get all color settings
      */
-    private function get_color_settings()
-    {
-        return array(
+    private function get_color_settings() {
+        return [
             'header_primary' => $this->get_color_setting('header_primary_color', '#6f42c1'),
             'header_secondary' => $this->get_color_setting('header_secondary_color', '#8e44ad'),
             'header_text' => $this->get_color_setting('header_text_color', '#ffffff'),
@@ -486,14 +468,13 @@ class exporter
             'grade_value_bg' => $this->get_color_setting('grade_value_bg_color', '#f8fff9'),
             'percentage' => $this->get_color_setting('percentage_color', '#007bff'),
             'percentage_bg' => $this->get_color_setting('percentage_bg_color', '#f8feff'),
-        );
+        ];
     }
 
     /**
      * Get Word-compatible CSS with configurable colors
      */
-    private function get_word_compatible_css()
-    {
+    private function get_word_compatible_css() {
         $colors = $this->get_color_settings();
 
         return '
@@ -683,8 +664,7 @@ class exporter
     /**
      * Get site logo URL with error handling
      */
-    private function get_site_logo_url()
-    {
+    private function get_site_logo_url() {
         global $CFG, $OUTPUT;
 
         try {
@@ -712,8 +692,7 @@ class exporter
     /**
      * Get activity description if available
      */
-    private function get_activity_description($grade_item)
-    {
+    private function get_activity_description($grade_item) {
         global $DB, $CFG;
 
         if ($grade_item->itemtype !== 'mod') {
@@ -734,7 +713,7 @@ class exporter
             }
 
             // Get activity record with intro
-            $activity = $DB->get_record($grade_item->itemmodule, array('id' => $grade_item->iteminstance), 'id, intro, introformat');
+            $activity = $DB->get_record($grade_item->itemmodule, ['id' => $grade_item->iteminstance], 'id, intro, introformat');
 
             if ($activity && !empty($activity->intro)) {
                 // Keep HTML but strip dangerous tags and limit size if needed
@@ -744,14 +723,14 @@ class exporter
                 // Rewrite plugin file URLs to make images work
                 $description = file_rewrite_pluginfile_urls($activity->intro, 'pluginfile.php', $modcontext->id, 'mod_' . $grade_item->itemmodule, 'intro', null);
 
-                $formatted = format_text($description, $activity->introformat, array('noclean' => true, 'para' => false, 'context' => $modcontext));
+                $formatted = format_text($description, $activity->introformat, ['noclean' => true, 'para' => false, 'context' => $modcontext]);
                 $this->activity_description_cache[$cache_key] = $formatted;
                 return $formatted;
             }
         } catch (\Exception $e) {
             // Silently fail to avoid breaking the report
         }
-        
+
         $this->activity_description_cache[$cache_key] = '';
         return '';
     }
@@ -778,7 +757,7 @@ class exporter
             }
             return false;
         }
-        return \grade_grade::fetch(array('itemid' => $grade_item->id, 'userid' => $userid));
+        return \grade_grade::fetch(['itemid' => $grade_item->id, 'userid' => $userid]);
     }
 
     private function get_category_item($category) {
@@ -805,8 +784,7 @@ class exporter
     /**
      * Trigger AI Analysis by sending data to n8n
      */
-    public function trigger_ai_analysis()
-    {
+    public function trigger_ai_analysis() {
         global $DB, $CFG;
         require_once($CFG->libdir . '/filelib.php');
 
@@ -826,7 +804,7 @@ class exporter
             if ($time_diff < $cooldown_seconds) {
                 // Rate limit exceeded
                 $minutes_remaining = ceil(($cooldown_seconds - $time_diff) / 60);
-                return array('success' => false, 'message' => "Daily limit reached. Please wait " . (int)$minutes_remaining . " minute(s) before generating a new analysis.");
+                return ['success' => false, 'message' => "Daily limit reached. Please wait " . (int)$minutes_remaining . " minute(s) before generating a new analysis."];
             }
         }
 
@@ -835,10 +813,10 @@ class exporter
         $n8n_token = get_config('report_studentgrades', 'token');
 
         if (!$n8n_url) {
-            return array('success' => false, 'message' => 'AI Configuration (Webhook URL) not found in Student Grades Report settings.');
+            return ['success' => false, 'message' => 'AI Configuration (Webhook URL) not found in Student Grades Report settings.'];
         }
 
-        $user = $DB->get_record('user', array('id' => $this->userid), '*', MUST_EXIST);
+        $user = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
 
         // Gather data
         $data = $this->get_user_grades_data($user);
@@ -855,38 +833,37 @@ class exporter
     /**
      * Gather all user grades data into a structured array
      */
-    public function get_user_grades_data($user)
-    {
-        $data = array(
-            'student' => array(
+    public function get_user_grades_data($user) {
+        $data = [
+            'student' => [
                 'id' => $user->id,
                 'fullname' => fullname($user),
                 'email' => $user->email,
-                'username' => $user->username
-            ),
+                'username' => $user->username,
+            ],
             'generated_at' => time(),
-            'courses' => array()
-        );
+            'courses' => [],
+        ];
 
         $courses = $this->get_user_courses();
         foreach ($courses as $course) {
-            $course_data = array(
+            $course_data = [
                 'id' => $course->id,
                 'fullname' => format_string($course->fullname),
                 'shortname' => format_string($course->shortname),
                 'description' => '', // Default empty
-                'grades' => array()
-            );
+                'grades' => [],
+            ];
 
             // Add course summary/description
             if (!empty($course->summary)) {
                 $course_context = \context_course::instance($course->id);
                 $summary = file_rewrite_pluginfile_urls($course->summary, 'pluginfile.php', $course_context->id, 'course', 'summary', null);
-                $course_data['description'] = format_text($summary, $course->summaryformat ?? FORMAT_HTML, array('noclean' => true, 'para' => false, 'context' => $course_context));
+                $course_data['description'] = format_text($summary, $course->summaryformat ?? FORMAT_HTML, ['noclean' => true, 'para' => false, 'context' => $course_context]);
             }
 
             // Get grades
-            $gpr = new \grade_plugin_return(array('type' => 'report', 'plugin' => 'studentgrades', 'courseid' => $course->id));
+            $gpr = new \grade_plugin_return(['type' => 'report', 'plugin' => 'studentgrades', 'courseid' => $course->id]);
             $gtree = new \grade_tree($course->id, false, false, null, $gpr);
 
             if (isset($gtree->top_element['children'])) {
@@ -908,18 +885,17 @@ class exporter
     /**
      * Recursive function to extract grade data
      */
-    private function extract_grade_tree_data($children, $userid)
-    {
-        $items = array();
+    private function extract_grade_tree_data($children, $userid) {
+        $items = [];
 
         foreach ($children as $child) {
             if ($child['type'] == 'category') {
                 $category = $child['object'];
-                $cat_data = array(
+                $cat_data = [
                     'type' => 'category',
                     'name' => format_string($category->fullname),
-                    'children' => array()
-                );
+                    'children' => [],
+                ];
 
                 if (!empty($child['children'])) {
                     $cat_data['children'] = $this->extract_grade_tree_data($child['children'], $userid);
@@ -935,14 +911,14 @@ class exporter
 
                 $grade_grade = $this->get_preloaded_grade($grade_item, $userid);
 
-                $item_data = array(
+                $item_data = [
                     'type' => 'item',
                     'name' => format_string($grade_item->itemname),
                     'grade' => $this->format_grade_value($grade_grade, $grade_item),
                     'range' => $this->format_grade_range($grade_item),
                     'percentage' => $this->format_grade_percentage($grade_grade, $grade_item),
-                    'description' => $this->get_activity_description($grade_item)
-                );
+                    'description' => $this->get_activity_description($grade_item),
+                ];
 
                 // Add feedback if exists
                 if ($grade_grade && !empty($grade_grade->feedback)) {
@@ -959,16 +935,15 @@ class exporter
     /**
      * Post data to n8n webhook
      */
-    private function post_to_n8n($url, $token, $data)
-    {
+    private function post_to_n8n($url, $token, $data) {
         $curl = new \curl();
-        $options = array(
-            'CURLOPT_HTTPHEADER' => array(
+        $options = [
+            'CURLOPT_HTTPHEADER' => [
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $token
-            ),
-            'CURLOPT_RETURNTRANSFER' => true
-        );
+                'Authorization: Bearer ' . $token,
+            ],
+            'CURLOPT_RETURNTRANSFER' => true,
+        ];
 
         // Moodle's curl class might not support setopt array directly in constructor depending on version,
         // but let's use the post method which is standard.
@@ -976,8 +951,8 @@ class exporter
         $curl->setHeader('Content-Type: application/json');
         $curl->setHeader('Authorization: Bearer ' . $token); // Or just 'Authorization: ' . $token depending on how n8n is set up, usually Bearer is safe.
         // If the user said "n8n Token", it might be a query param or header. Standard webhook protection is usually header.
-        // Let's also add it to query string to be safe if that's how they implemented it? 
-        // No, let's stick to Header. 
+        // Let's also add it to query string to be safe if that's how they implemented it?
+        // No, let's stick to Header.
         // Actually, many n8n webhooks just use the URL. The "Token" usually refers to a Header Auth.
         // I will add X-N8N-Token as well just in case.
         $curl->setHeader('X-N8N-Chat-Token: ' . $token); // Common pattern
@@ -991,17 +966,16 @@ class exporter
         $info = $curl->get_info();
 
         if ($info['http_code'] == 200 || $info['http_code'] == 201) {
-            return array('success' => true, 'message' => 'Analysis request sent successfully!');
+            return ['success' => true, 'message' => 'Analysis request sent successfully!'];
         } else {
-            return array('success' => false, 'message' => 'Failed to send data. HTTP Code: ' . $info['http_code'] . ' Response: ' . $response);
+            return ['success' => false, 'message' => 'Failed to send data. HTTP Code: ' . $info['http_code'] . ' Response: ' . $response];
         }
     }
 
     /**
      * Generate HTML footer
      */
-    private function get_html_footer()
-    {
+    private function get_html_footer() {
         return '</body></html>';
     }
 }

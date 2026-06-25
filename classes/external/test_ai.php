@@ -32,7 +32,6 @@ use Exception;
 use Throwable;
 
 class test_ai extends external_api {
-
     public static function execute_parameters() {
         return new external_function_parameters([
             'userid' => new external_value(PARAM_INT, 'The user ID'),
@@ -49,11 +48,11 @@ class test_ai extends external_api {
 
         require_once(__DIR__ . '/../../lib.php');
 
+        $context = \context_user::instance($userid);
+        self::validate_context($context);
+
         if (!report_studentgrades_can_access_user($userid, $current_userid)) {
-            return [
-                'success' => false,
-                'message' => "Permission Denied. You are logged in as User ID: $current_userid but requested data for User ID: $userid. Appropriate capability or linked parent account required."
-            ];
+            throw new \required_capability_exception($context, 'report/studentgrades:view', 'nopermissions', '');
         }
 
         try {
@@ -70,7 +69,7 @@ class test_ai extends external_api {
                     $minutes_remaining = ceil(($cooldown_seconds - $time_diff) / 60);
                     return [
                         'success' => false,
-                        'message' => get_string('dailylimitreached', 'report_studentgrades', $minutes_remaining)
+                        'message' => get_string('dailylimitreached', 'report_studentgrades', $minutes_remaining),
                     ];
                 }
             }
@@ -85,9 +84,7 @@ class test_ai extends external_api {
 
             $data_json = json_encode($grade_data, JSON_PRETTY_PRINT);
 
-            $default_prompt = "You are an educational AI assistant. Analyze the following student performance data. " .
-                "The data includes course descriptions, activities, max grades, student grades, and activity descriptions. " .
-                "Provide a constructive analysis of the student's strengths and areas for improvement based on this data.";
+            $default_prompt = get_string('defaultprompt', 'report_studentgrades');
 
             $config_prompt = get_config('report_studentgrades', 'aiprompt');
             if (empty($config_prompt)) {
@@ -138,7 +135,7 @@ class test_ai extends external_api {
     public static function execute_returns() {
         return new external_single_structure([
             'success' => new external_value(PARAM_BOOL, 'Success flag'),
-            'message' => new external_value(PARAM_RAW, 'Result message or error')
+            'message' => new external_value(PARAM_RAW, 'Result message or error'),
         ]);
     }
 }

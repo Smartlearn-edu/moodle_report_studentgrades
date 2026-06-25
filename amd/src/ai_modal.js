@@ -34,73 +34,86 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/ajax', 'core/
 
             var loadingText = '';
             var generatingText = '';
+            var titleText = '';
+            var printText = '';
+            var downloadPdfText = '';
+            var commErrorText = '';
+            
             Str.get_strings([
                 {key: 'talkingtocoreai', component: 'report_studentgrades'},
-                {key: 'generatinganalysis', component: 'report_studentgrades'}
+                {key: 'generatinganalysis', component: 'report_studentgrades'},
+                {key: 'aianalysisresult', component: 'report_studentgrades'},
+                {key: 'print', component: 'core'},
+                {key: 'downloadpdf', component: 'report_studentgrades'},
+                {key: 'communicationerror', component: 'report_studentgrades'}
             ]).done(function(strings) {
                 loadingText = strings[0];
                 generatingText = strings[1];
-            });
-
-            ModalFactory.create({
-                type: ModalFactory.types.DEFAULT,
-                title: 'AI Analysis Result',
-                body: '<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>' + (loadingText || 'Talking to Moodle AI...') + '</p></div>',
-            }, triggerBtn).done(function(modal) {
+                titleText = strings[2];
+                printText = strings[3];
+                downloadPdfText = strings[4];
+                commErrorText = strings[5];
                 
-                modal.getRoot().on(ModalEvents.shown, function() {
-                    // When modal shows, trigger the AJAX call
-                    // Reset body to loading state in case it was opened before
-                    modal.setBody('<div class="text-center" style="padding:20px;"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><p>' + (generatingText || 'Generating Analysis...') + '</p></div>');
+                ModalFactory.create({
+                    type: ModalFactory.types.DEFAULT,
+                    title: titleText || 'AI Analysis Result',
+                    body: '<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>' + (loadingText || 'Talking to Moodle AI...') + '</p></div>',
+                }, triggerBtn).done(function(modal) {
                     
-                    Ajax.call([{
-                        methodname: 'report_studentgrades_test_ai',
-                        args: {
-                            userid: userid
-                        },
-                        done: function(response) {
-                            if (response && response.success) {
-                                var contentHtml = '<div id="ai-analysis-content">' + (response.message || 'Success') + '</div>';
-                                var controlsHtml = '<div style="margin-top:20px; text-align:right; border-top:1px solid #eee; padding-top:10px;">' +
-                                    '<button class="btn btn-secondary" id="btn-print-analysis"><i class="fa fa-print"></i> Print</button> ' +
-                                    '<button class="btn btn-primary" id="btn-download-pdf"><i class="fa fa-file-pdf-o"></i> Download PDF</button>' +
-                                    '</div>';
-                                
-                                modal.setBody(contentHtml + controlsHtml);
+                    modal.getRoot().on(ModalEvents.shown, function() {
+                        // When modal shows, trigger the AJAX call
+                        // Reset body to loading state in case it was opened before
+                        modal.setBody('<div class="text-center" style="padding:20px;"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><p>' + (generatingText || 'Generating Analysis...') + '</p></div>');
+                        
+                        Ajax.call([{
+                            methodname: 'report_studentgrades_test_ai',
+                            args: {
+                                userid: userid
+                            },
+                            done: function(response) {
+                                if (response && response.success) {
+                                    var contentHtml = '<div id="ai-analysis-content">' + (response.message || 'Success') + '</div>';
+                                    var controlsHtml = '<div style="margin-top:20px; text-align:right; border-top:1px solid #eee; padding-top:10px;">' +
+                                        '<button class="btn btn-secondary" id="btn-print-analysis"><i class="fa fa-print"></i> ' + printText + '</button> ' +
+                                        '<button class="btn btn-primary" id="btn-download-pdf"><i class="fa fa-file-pdf-o"></i> ' + downloadPdfText + '</button>' +
+                                        '</div>';
+                                    
+                                    modal.setBody(contentHtml + controlsHtml);
 
-                                // Bind events
-                                setTimeout(function() {
-                                    $('#btn-print-analysis').on('click', function() {
-                                        var printWindow = window.open('', '', 'height=600,width=800');
-                                        printWindow.document.write('<html><head><title>AI Analysis</title>');
-                                        printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;}</style>');
-                                        printWindow.document.write('</head><body>');
-                                        printWindow.document.write($('#ai-analysis-content').html());
-                                        printWindow.document.write('</body></html>');
-                                        printWindow.document.close();
-                                        printWindow.print();
-                                    });
+                                    // Bind events
+                                    setTimeout(function() {
+                                        $('#btn-print-analysis').on('click', function() {
+                                            var printWindow = window.open('', '', 'height=600,width=800');
+                                            printWindow.document.write('<html><head><title>AI Analysis</title>');
+                                            printWindow.document.write('<style>body{font-family:sans-serif; padding:20px;}</style>');
+                                            printWindow.document.write('</head><body>');
+                                            printWindow.document.write($('#ai-analysis-content').html());
+                                            printWindow.document.write('</body></html>');
+                                            printWindow.document.close();
+                                            printWindow.print();
+                                        });
 
-                                    $('#btn-download-pdf').on('click', function() {
-                                        var form = $('<form action="download_pdf.php" method="post" target="_blank">' +
-                                            '<input type="hidden" name="action" value="downloadpdf">' +
-                                            '<input type="hidden" name="userid" value="' + userid + '">' +
-                                            '<textarea name="html_content" style="display:none;">' + $('#ai-analysis-content').html() + '</textarea>' +
-                                            '</form>');
-                                        $('body').append(form);
-                                        form.submit();
-                                        form.remove();
-                                    });
-                                }, 500);
-                            } else {
-                                var errMsg = (response && response.message) ? response.message : 'Unknown error occurred';
-                                modal.setBody('<div class="alert alert-danger">' + errMsg + '</div>');
+                                        $('#btn-download-pdf').on('click', function() {
+                                            var form = $('<form action="download_pdf.php" method="post" target="_blank">' +
+                                                '<input type="hidden" name="action" value="downloadpdf">' +
+                                                '<input type="hidden" name="userid" value="' + userid + '">' +
+                                                '<textarea name="html_content" style="display:none;">' + $('#ai-analysis-content').html() + '</textarea>' +
+                                                '</form>');
+                                            $('body').append(form);
+                                            form.submit();
+                                            form.remove();
+                                        });
+                                    }, 500);
+                                } else {
+                                    var errMsg = (response && response.message) ? response.message : 'Unknown error occurred';
+                                    modal.setBody('<div class="alert alert-danger">' + errMsg + '</div>');
+                                }
+                            },
+                            fail: function(ex) {
+                                modal.setBody('<div class="alert alert-danger">' + commErrorText + ': ' + ex.message + '</div>');
                             }
-                        },
-                        fail: function(ex) {
-                            modal.setBody('<div class="alert alert-danger">Communication Error: ' + ex.message + '</div>');
-                        }
-                    }]);
+                        }]);
+                    });
                 });
             });
         }
