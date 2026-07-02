@@ -116,19 +116,19 @@ class test_ai extends external_api {
                         if (!empty($data['generatedcontent'])) {
                             return ['success' => true, 'message' => $data['generatedcontent']];
                         } else {
-                            return ['success' => true, 'message' => "AI Response success but no content. Raw data: " . print_r($data, true)];
+                            return ['success' => true, 'message' => get_string('airesponsesuccessnocontent', 'report_studentgrades', print_r($data, true))];
                         }
                     } else {
-                        return ['success' => false, 'message' => "AI Provider Error: " . $result->get_error_message()];
+                        return ['success' => false, 'message' => get_string('aiprovidererror', 'report_studentgrades', $result->get_error_message())];
                     }
                 } catch (Throwable $t) {
-                    return ['success' => false, 'message' => 'Error initializing AI action: ' . $t->getMessage()];
+                    return ['success' => false, 'message' => get_string('errorinitializingai', 'report_studentgrades', $t->getMessage())];
                 }
             } else {
-                return ['success' => true, 'message' => "AI System Response: Hello! I received your message. (Moodle Core AI classes not detected, showing mock response)"];
+                return ['success' => true, 'message' => get_string('aimockresponse', 'report_studentgrades')];
             }
         } catch (Exception $e) {
-            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+            return ['success' => false, 'message' => get_string('generalerror', 'report_studentgrades', $e->getMessage())];
         }
     }
 

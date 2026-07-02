@@ -58,6 +58,18 @@ $string['defaultprompt'] = "You are an educational AI assistant. Analyze the fol
 $string['privacy:metadata:userid'] = 'The user ID.';
 $string['privacy:metadata:grades'] = 'The user\'s grades data.';
 $string['privacy:metadata:n8n_webhook_summary'] = 'Grades data is sent to the n8n webhook for AI analysis.';
+$string['permissiondenied'] = 'Permission Denied. You are logged in as User ID: {$a->currentuserid} but requested data for User ID: {$a->userid}. Appropriate capability or linked parent account required.';
+$string['airesponsesuccessnocontent'] = 'AI Response success but no content. Raw data: {$a}';
+$string['aiprovidererror'] = 'AI Provider Error: {$a}';
+$string['errorinitializingai'] = 'Error initializing AI action: {$a}';
+$string['aimockresponse'] = 'AI System Response: Hello! I received your message. (Moodle Core AI classes not detected, showing mock response)';
+$string['generalerror'] = 'Error: {$a}';
+$string['invalidaction'] = 'Invalid action';
+$string['success'] = 'Success';
+$string['unknownerror'] = 'Unknown error occurred';
+$string['aiconfigmissing'] = 'AI Configuration (Webhook URL) not found in Student Grades Report settings.';
+$string['analysisrequestsent'] = 'Analysis request sent successfully!';
+$string['failedtosenddata'] = 'Failed to send data. HTTP Code: {$a->code} Response: {$a->response}';
 
 // Color Settings
 $string['colorsettings'] = 'Color Settings';

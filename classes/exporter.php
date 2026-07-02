@@ -804,7 +804,7 @@ class exporter
             if ($time_diff < $cooldown_seconds) {
                 // Rate limit exceeded
                 $minutes_remaining = ceil(($cooldown_seconds - $time_diff) / 60);
-                return ['success' => false, 'message' => "Daily limit reached. Please wait " . (int)$minutes_remaining . " minute(s) before generating a new analysis."];
+                return ['success' => false, 'message' => get_string('dailylimitreached', 'report_studentgrades', (int)$minutes_remaining)];
             }
         }
 
@@ -813,7 +813,7 @@ class exporter
         $n8n_token = get_config('report_studentgrades', 'token');
 
         if (!$n8n_url) {
-            return ['success' => false, 'message' => 'AI Configuration (Webhook URL) not found in Student Grades Report settings.'];
+            return ['success' => false, 'message' => get_string('aiconfigmissing', 'report_studentgrades')];
         }
 
         $user = $DB->get_record('user', ['id' => $this->userid], '*', MUST_EXIST);
@@ -966,9 +966,12 @@ class exporter
         $info = $curl->get_info();
 
         if ($info['http_code'] == 200 || $info['http_code'] == 201) {
-            return ['success' => true, 'message' => 'Analysis request sent successfully!'];
+            return ['success' => true, 'message' => get_string('analysisrequestsent', 'report_studentgrades')];
         } else {
-            return ['success' => false, 'message' => 'Failed to send data. HTTP Code: ' . $info['http_code'] . ' Response: ' . $response];
+            $a = new \stdClass();
+            $a->code = $info['http_code'];
+            $a->response = $response;
+            return ['success' => false, 'message' => get_string('failedtosenddata', 'report_studentgrades', $a)];
         }
     }
 

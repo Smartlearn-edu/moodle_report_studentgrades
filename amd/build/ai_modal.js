@@ -20,7 +20,7 @@
  * @copyright  2025 Mohammad Nabil <mohammad@smartlearn.education>
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/ajax', 'core/str'], 
+define("report_studentgrades/ai_modal", ['jquery', 'core/modal_factory', 'core/modal_events', 'core/ajax', 'core/str'], 
     function($, ModalFactory, ModalEvents, Ajax, Str) {
 
     return {

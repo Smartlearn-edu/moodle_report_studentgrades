@@ -47,9 +47,9 @@ if ($action === 'downloadpdf' && !empty($html_content)) {
     $pdf->AddPage();
 
     // Add some styling or title
-    $html = '<h1>AI Analysis Result</h1>';
-    $html .= '<p><strong>Student:</strong> ' . fullname($DB->get_record('user', ['id' => $userid])) . '</p>';
-    $html .= '<p><strong>Date:</strong> ' . userdate(time()) . '</p>';
+    $html = '<h1>' . get_string('aianalysisresult', 'report_studentgrades') . '</h1>';
+    $html .= '<p><strong>' . get_string('user', 'report_studentgrades') . ':</strong> ' . fullname($DB->get_record('user', ['id' => $userid])) . '</p>';
+    $html .= '<p><strong>' . get_string('reportdate', 'report_studentgrades') . ':</strong> ' . userdate(time()) . '</p>';
     $html .= '<hr>';
     $html .= $html_content;
 

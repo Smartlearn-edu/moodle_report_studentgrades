@@ -41,9 +41,12 @@ require_once(__DIR__ . '/lib.php');
 
 // Check permission using the common helper function
 if (!report_studentgrades_can_access_user($userid, $current_userid)) {
+    $a = new stdClass();
+    $a->currentuserid = $current_userid;
+    $a->userid = $userid;
     $response = [
         'success' => false,
-        'message' => "Permission Denied. You are logged in as User ID: $current_userid but requested data for User ID: $userid. Appropriate capability or linked parent account required.",
+        'message' => get_string('permissiondenied', 'report_studentgrades', $a),
     ];
     echo json_encode($response);
     exit;
@@ -134,13 +137,13 @@ if ($action === 'test_ai') {
                     if (!empty($data['generatedcontent'])) {
                         $response['message'] = $data['generatedcontent'];
                     } else {
-                        $response['message'] = "AI Response success but no content. Raw data: " . print_r($data, true);
+                        $response['message'] = get_string('airesponsesuccessnocontent', 'report_studentgrades', print_r($data, true));
                     }
                 } else {
-                    $response['message'] = "AI Provider Error: " . $result->get_error_message();
+                    $response['message'] = get_string('aiprovidererror', 'report_studentgrades', $result->get_error_message());
                 }
             } catch (Throwable $t) {
-                $response['message'] = 'Error initializing AI action: ' . $t->getMessage();
+                $response['message'] = get_string('errorinitializingai', 'report_studentgrades', $t->getMessage());
                 $response['debug'] = [
                     'context_id' => $context->id,
                     'context_id_type' => gettype($context->id),
@@ -154,13 +157,13 @@ if ($action === 'test_ai') {
             // Fallback for older Moodle versions or if core_ai is not found for testing
             // We simulate a response so the user sees the window working
             $response['success'] = true;
-            $response['message'] = "AI System Response: Hello! I received your message. (Moodle Core AI classes not detected, showing mock response)";
+            $response['message'] = get_string('aimockresponse', 'report_studentgrades');
         }
     } catch (Exception $e) {
-        $response['message'] = 'Error: ' . $e->getMessage();
+        $response['message'] = get_string('generalerror', 'report_studentgrades', $e->getMessage());
     }
 } else {
-    $response['message'] = 'Invalid action';
+    $response['message'] = get_string('invalidaction', 'report_studentgrades');
 }
 
 echo json_encode($response);
