@@ -39,6 +39,7 @@ define("report_studentgrades/ai_modal", ['jquery', 'core/modal_factory', 'core/m
             var downloadPdfText = '';
             var successText = '';
             var unknownErrorText = '';
+            var commErrorText = '';
             
             Str.get_strings([
                 {key: 'talkingtocoreai', component: 'report_studentgrades'},

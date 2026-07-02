@@ -39,6 +39,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/ajax', 'core/
             var downloadPdfText = '';
             var successText = '';
             var unknownErrorText = '';
+            var commErrorText = '';
             
             Str.get_strings([
                 {key: 'talkingtocoreai', component: 'report_studentgrades'},
